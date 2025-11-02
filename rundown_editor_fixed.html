@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+    <meta name="theme-color" content="#1976d2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Rundown Editor Pro</title>
+	<script src="cordova.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary-color: #1976d2;
+            --primary-dark: #0d47a1;
+            --primary-light: #42a5f5;
+            --secondary-color: #ff9800;
+            --success-color: #4caf50;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            --text-dark: #212121;
+            --text-light: #757575;
+            --bg-light: #f5f5f5;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .mobile-header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .mobile-header h1 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        
+        .mobile-header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-btn:active {
+            background: rgba(255,255,255,0.3);
+            transform: scale(0.95);
+        }
+        
+        .swiper-wrapper {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        
+        .swiper-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .swipe-section {
+            min-width: 100vw;
+            width: 100vw;
+            scroll-snap-align: start;
+            padding: 15px;
+            padding-bottom: 80px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-bottom: 15px;
+        }
+        
+        .card h2 {
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(25,118,210,0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group select {
+            appearance: none;
+            background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23333" d="M6 9L1 4h10z"/></svg>') no-repeat right 12px center;
+            padding-right: 35px;
+            cursor: pointer;
+        }
+        
+.activity {
+  background: #f4faff;
+  padding: 3px;
+  border-radius: 1px;
+  border-left: 4px solid #93c9ff;
+  margin-top: 8px;
+}
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .activity-header h4 {
+            color: var(--primary-dark);
+            font-size: 1rem;
+        }
+
+        .activity-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: transform 0.2s;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.9);
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(25,118,210,0.3);
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff9800, #ffa726);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,152,0,0.3);
+        }
+        
+        .btn-add {
+            background: linear-gradient(135deg, var(--success-color), #66bb6a);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76,175,80,0.3);
+        }
+        
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            width: auto;
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #9c27b0, #ba68c8);
+            color: white;
+            box-shadow: 0 4px 15px rgba(156,39,176,0.3);
+        }
+        
+        .preview-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .preview-header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 25px 15px;
+            text-align: center;
+        }
+        
+        .preview-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .preview-header p {
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .preview-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+
+        .preview-meta-item {
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .preview-meta-item strong {
+            display: block;
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-bottom: 3px;
+        }
+        
+        .preview-content {
+            padding: 20px 15px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 35px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--primary-color), var(--primary-light));
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -28px;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary-color);
+        }
+        
+        .time {
+            display: inline-block;
+            background: #e3f2fd;
+            color: var(--primary-dark);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .activity {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+            margin-top: 8px;
+        }
+        
+        .activity h4 {
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+        
+        .activity p {
+            color: #555;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 5px solid var(--warning-color);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .info-box h3 {
+            color: #e65100;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .info-list {
+            margin-left: 15px;
+            color: #5d4037;
+        }
+        
+        .info-list li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+        
+        .preview-footer {
+            background: var(--primary-dark);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .preview-footer p:first-child {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .nav-dots {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            z-index: 99;
+        }
+        
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-dot.active {
+            width: 24px;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+        
+        .swipe-hint {
+            text-align: center;
+            padding: 10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            animation: fadeInOut 3s infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translate(-50%, 0); opacity: 1; }
+            to { transform: translate(-50%, -20px); opacity: 0; }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .template-item {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .template-item:active {
+            transform: scale(0.98);
+            background: #e3f2fd;
+        }
+
+        .template-item h4 {
+            color: var(--primary-dark);
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .template-item p {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .template-category {
+            background: var(--primary-light);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .export-btn:active {
+            transform: scale(0.98);
+        }
+
+        .whatsapp-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            margin-bottom: 15px;
+        }
+
+        .whatsapp-input:focus {
+            outline: none;
+            border-color: #25d366;
+            box-shadow: 0 0 0 3px rgba(37,211,102,0.1);
+        }
+
+        .duration-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .duration-badge.short {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .duration-badge.medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .duration-badge.long {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .time-input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .quick-duration {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f0f7ff;
+            border-radius: 10px;
+        }
+
+        .quick-duration-label {
+            width: 100%;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .quick-btn {
+            background: #e3f2fd;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-dark);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .quick-btn:active {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(0.95);
+        }
+
+        .timeline-duration {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .time-conflict {
+            background: #ffebee;
+            border-left: 4px solid var(--danger-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .time-overlap-warning {
+            background: #fff3e0;
+            border-left: 4px solid var(--warning-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #e65100;
+            animation: pulse 2s infinite;
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .event-type-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .event-type-card {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .event-type-card:active {
+            transform: scale(0.95);
+        }
+
+        .event-type-card.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+        }
+
+        .event-type-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .event-type-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .custom-footer {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .custom-footer label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .custom-footer input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .mobile-header,
+            .nav-dots,
+            .swipe-hint,
+            .btn,
+            .header-actions {
+                display: none !important;
+            }
+            
+            .swiper-wrapper {
+                display: block;
+                overflow: visible;
+            }
+            
+            .swipe-section {
+                min-width: 100%;
+                width: 100%;
+                padding: 0;
+            }
+            
+            .card {
+                display: none;
+            }
+            
+            .preview-container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-header">
+        <h1>📋 Rundown Editor Pro</h1>
+        <p>Buat jadwal untuk semua jenis acara Anda</p>
+        <div class="header-actions">
+            <button class="header-btn" onclick="showTemplates()">📑 Template</button>
+            <button class="header-btn" onclick="showStats()">📊 Statistik</button>
+            <button class="header-btn" onclick="saveData()">💾 Simpan</button>
+            <button class="header-btn" onclick="loadData()">📂 Muat</button>
+            <button class="header-btn" onclick="clearAll()">🗑️ Reset</button>
+        </div>
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Memproses...</div>
+    </div>
+
+    <div class="modal" id="templatesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📑 Template Rundown</h3>
+                <button class="close-btn" onclick="closeModal('templatesModal')">×</button>
+            </div>
+            <div id="templatesList"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="statsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Statistik Rundown</h3>
+                <button class="close-btn" onclick="closeModal('statsModal')">×</button>
+            </div>
+            <div id="statsContent"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📤 Export Rundown</h3>
+                <button class="close-btn" onclick="closeModal('exportModal')">×</button>
+            </div>
+            <div class="export-options">
+                <button class="export-btn" onclick="exportAsPDF()">
+                    <span>🖨️</span>
+                    <span>Download PDF</span>
+                </button>
+                <div style="margin-top: 10px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-dark);">
+                        📱 Kirim ke WhatsApp:
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="whatsappNumber" 
+                        class="whatsapp-input" 
+                        placeholder="Contoh: 628123456789"
+                        value="">
+                    <button class="export-btn" onclick="sendToWhatsApp()" style="background: linear-gradient(135deg, #25d366, #128c7e);">
+                        <span>📱</span>
+                        <span>Kirim ke WhatsApp</span>
+                    </button>
+                </div>
+                <button class="export-btn" onclick="copyToClipboard()">
+                    <span>📋</span>
+                    <span>Salin ke Clipboard</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="swiper-wrapper" id="swiperWrapper">
+        <div class="swipe-section" data-section="0">
+            <div class="card">
+                <h2>🎯 Jenis Acara</h2>
+                
+                <div class="event-type-selector" id="eventTypeSelector">
+                    <div class="event-type-card" data-type="workshop" onclick="selectEventType('workshop')">
+                        <div class="event-type-icon">👨‍💼</div>
+                        <div class="event-type-name">Workshop</div>
+                    </div>
+                    <div class="event-type-card" data-type="seminar" onclick="selectEventType('seminar')">
+                        <div class="event-type-icon">🎓</div>
+                        <div class="event-type-name">Seminar</div>
+                    </div>
+                    <div class="event-type-card" data-type="conference" onclick="selectEventType('conference')">
+                        <div class="event-type-icon">🎤</div>
+                        <div class="event-type-name">Konferensi</div>
+                    </div>
+                    <div class="event-type-card" data-type="wedding" onclick="selectEventType('wedding')">
+                        <div class="event-type-icon">💑</div>
+                        <div class="event-type-name">Pernikahan</div>
+                    </div>
+                    <div class="event-type-card" data-type="meeting" onclick="selectEventType('meeting')">
+                        <div class="event-type-icon">📊</div>
+                        <div class="event-type-name">Rapat</div>
+                    </div>
+                    <div class="event-type-card" data-type="concert" onclick="selectEventType('concert')">
+                        <div class="event-type-icon">🎵</div>
+                        <div class="event-type-name">Konser</div>
+                    </div>
+                    <div class="event-type-card" data-type="exhibition" onclick="selectEventType('exhibition')">
+                        <div class="event-type-icon">🖼️</div>
+                        <div class="event-type-name">Pameran</div>
+                    </div>
+                    <div class="event-type-card" data-type="sports" onclick="selectEventType('sports')">
+                        <div class="event-type-icon">⚽</div>
+                        <div class="event-type-name">Olahraga</div>
+                    </div>
+                    <div class="event-type-card" data-type="training" onclick="selectEventType('training')">
+                        <div class="event-type-icon">📚</div>
+                        <div class="event-type-name">Pelatihan</div>
+                    </div>
+                    <div class="event-type-card" data-type="custom" onclick="selectEventType('custom')">
+                        <div class="event-type-icon">✨</div>
+                        <div class="event-type-name">Custom</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📋 Informasi Acara</h2>
+                
+                <div class="form-group">
+                    <label>Judul Acara:</label>
+                    <input type="text" id="title" placeholder="Masukkan judul acara">
+                </div>
+                
+                <div class="form-group">
+                    <label>Sub Judul / Tema:</label>
+                    <input type="text" id="subtitle" placeholder="Masukkan sub judul atau tema">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tanggal Acara:</label>
+                    <input type="date" id="eventDate">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tempat / Lokasi:</label>
+                    <input type="text" id="location" placeholder="Masukkan lokasi acara">
+                </div>
+                
+                <div class="form-group">
+                    <label>Penyelenggara:</label>
+                    <input type="text" id="organizer" placeholder="Nama penyelenggara atau organisasi">
+                </div>
+                
+                <div class="form-group">
+                    <label>Target Peserta:</label>
+                    <input type="text" id="participants" placeholder="Contoh: 100 peserta">
+                </div>
+                
+                <button class="btn btn-primary" onclick="saveAndNext()">✅ Simpan & Lanjut</button>
+            </div>
+            <div class="swipe-hint">← Geser untuk section berikutnya →</div>
+        </div>
+        
+        <div class="swipe-section" data-section="1">
+            <div class="card">
+                <h2>⏰ Jadwal Kegiatan</h2>
+                <div id="scheduleContainer"></div>
+                <button class="btn btn-add" onclick="addSchedule()">+ Tambah Jadwal Baru</button>
+            </div>
+            <div class="swipe-hint">← Geser untuk navigasi →</div>
+        </div>
+        
+        <div class="swipe-section" data-section="2">
+            <div class="card">
+                <h2>ℹ️ Informasi Tambahan</h2>
+                
+                <div class="form-group">
+                    <label>Perlengkapan / Fasilitas:</label>
+                    <textarea id="equipment" placeholder="Pisahkan dengan koma (,)&#10;Contoh: Proyektor, Sound system, Kursi, Meja"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Kontak Person:</label>
+                    <textarea id="contact" placeholder="Nama dan nomor kontak yang bisa dihubungi"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Catatan Penting:</label>
+                    <textarea id="notes" placeholder="Masukkan catatan atau informasi penting lainnya"></textarea>
+                </div>
+                
+                <button class="btn btn-primary" onclick="saveInfo()">✅ Simpan Informasi</button>
+            </div>
+            <div class="swipe-hint">← Geser untuk navigasi →</div>
+        </div>
+        
+        <div class="swipe-section" data-section="3">
+            <div class="preview-container">
+                <div class="preview-header">
+                    <h1 id="previewTitle">📋 Judul Acara</h1>
+                    <p id="previewSubtitle">Sub judul acara</p>
+                    <div class="preview-meta" id="previewMeta"></div>
+                </div>
+                
+                <div class="preview-content">
+                    <div id="previewSchedule"></div>
+                    
+                    <div class="info-box">
+                        <h3>ℹ️ Informasi Penting</h3>
+                        <ul class="info-list" id="previewInfo"></ul>
+                    </div>
+                </div>
+                
+                <div class="preview-footer">
+                    <p id="previewFooter1">Dibuat dengan Rundown Editor Pro</p>
+                    <p id="previewFooter2">📱 Jie Mobile Event Management</p>
+                </div>
+            </div>
+
+            <div class="custom-footer">
+                <label>✏️ Custom Footer (Opsional):</label>
+                <input type="text" id="customFooter1" placeholder="Baris 1 footer" onchange="updatePreviewFooter()">
+                <input type="text" id="customFooter2" placeholder="Baris 2 footer" onchange="updatePreviewFooter()" style="margin-top: 8px;">
+            </div>
+            
+            <div style="padding: 15px;">
+                <button class="btn btn-primary" onclick="refreshPreview()">🔄 Perbarui Preview</button>
+                <button class="btn btn-secondary" onclick="window.print()">🖨️ Cetak PDF</button>
+                <button class="btn btn-export" onclick="showExportModal()">📤 Export Data</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="nav-dots" id="navDots">
+        <div class="nav-dot active"></div>
+        <div class="nav-dot"></div>
+        <div class="nav-dot"></div>
+        <div class="nav-dot"></div>
+    </div>
+    
+    <script>
+           let scheduleCount = 0;
+           const schedules = {};
+           let currentSection = 0;
+           let selectedEventType = '';
+   
+           const templates = {
+               workshop: [
+                   {
+                       name: "Workshop Standar",
+                       description: "Template workshop satu hari",
+                       category: "Workshop",
+                       schedules: [
+                           { startTime: "08:00", endTime: "08:45", title: "Registrasi", description: "Registrasi peserta dan welcome coffee" },
+                           { startTime: "08:45", endTime: "09:00", title: "Pembukaan", description: "Sambutan dan pengenalan agenda" },
+                           { startTime: "09:00", endTime: "10:30", title: "Sesi 1", description: "Materi workshop sesi pertama" },
+                           { startTime: "10:30", endTime: "10:45", title: "Coffee Break", description: "Istirahat dan networking" },
+                           { startTime: "10:45", endTime: "12:15", title: "Sesi 2", description: "Materi workshop sesi kedua" },
+                           { startTime: "12:15", endTime: "13:15", title: "Ishoma", description: "Istirahat, sholat, dan makan siang" },
+                           { startTime: "13:15", endTime: "14:45", title: "Sesi 3", description: "Praktik dan diskusi" },
+                           { startTime: "14:45", endTime: "15:00", title: "Penutupan", description: "Kesimpulan dan pembagian sertifikat" }
+                       ]
+                   }
+               ],
+               seminar: [
+                   {
+                       name: "Seminar Akademik",
+                       description: "Template seminar pendidikan",
+                       category: "Seminar",
+                       schedules: [
+                           { startTime: "08:00", endTime: "08:30", title: "Registrasi", description: "Pendaftaran dan pembagian materi" },
+                           { startTime: "08:30", endTime: "08:45", title: "Pembukaan", description: "Menyanyikan lagu kebangsaan dan doa" },
+                           { startTime: "08:45", endTime: "10:00", title: "Keynote Speaker", description: "Pembicara utama" },
+                           { startTime: "10:00", endTime: "10:15", title: "Coffee Break", description: "Istirahat" },
+                           { startTime: "10:15", endTime: "11:45", title: "Panel Diskusi", description: "Diskusi dengan para ahli" },
+                           { startTime: "11:45", endTime: "12:00", title: "Tanya Jawab", description: "Sesi Q&A dengan peserta" },
+                           { startTime: "12:00", endTime: "12:15", title: "Penutupan", description: "Penutupan dan foto bersama" }
+                       ]
+                   }
+               ],
+               conference: [
+                   {
+                       name: "Konferensi 2 Hari",
+                       description: "Template konferensi multi-hari",
+                       category: "Konferensi",
+                       schedules: [
+                           { startTime: "08:00", endTime: "09:00", title: "Registrasi Hari 1", description: "Check-in peserta" },
+                           { startTime: "09:00", endTime: "09:30", title: "Opening Ceremony", description: "Upacara pembukaan" },
+                           { startTime: "09:30", endTime: "11:00", title: "Plenary Session", description: "Sesi pleno dengan keynote speakers" },
+                           { startTime: "11:00", endTime: "11:15", title: "Break", description: "Coffee break" },
+                           { startTime: "11:15", endTime: "12:45", title: "Parallel Sessions", description: "Sesi paralel berbagai topik" },
+                           { startTime: "12:45", endTime: "14:00", title: "Lunch", description: "Makan siang" },
+                           { startTime: "14:00", endTime: "16:00", title: "Workshop Sessions", description: "Workshop praktis" },
+                           { startTime: "16:00", endTime: "17:00", title: "Networking", description: "Sesi networking" }
+                       ]
+                   }
+               ],
+               wedding: [
+                   {
+                       name: "Pernikahan Tradisional",
+                       description: "Rundown pernikahan adat",
+                       category: "Pernikahan",
+                       schedules: [
+                           { startTime: "08:00", endTime: "10:00", title: "Akad Nikah", description: "Prosesi akad nikah" },
+                           { startTime: "10:00", endTime: "11:00", title: "Foto Bersama", description: "Sesi foto keluarga" },
+                           { startTime: "11:00", endTime: "12:00", title: "Istirahat", description: "Break dan persiapan resepsi" },
+                           { startTime: "12:00", endTime: "13:00", title: "Penyambutan Tamu", description: "Kedatangan tamu undangan" },
+                           { startTime: "13:00", endTime: "13:30", title: "Pembukaan Resepsi", description: "MC membuka acara" },
+                           { startTime: "13:30", endTime: "14:30", title: "Makan Siang", description: "Prasmanan dan hiburan" },
+                           { startTime: "14:30", endTime: "15:00", title: "Potong Kue", description: "Potong kue pengantin" },
+                           { startTime: "15:00", endTime: "15:30", title: "Penutupan", description: "Ucapan terima kasih" }
+                       ]
+                   }
+               ],
+               meeting: [
+                   {
+                       name: "Rapat Formal",
+                       description: "Template rapat resmi",
+                       category: "Rapat",
+                       schedules: [
+                           { startTime: "09:00", endTime: "09:15", title: "Pembukaan", description: "Pembukaan dan presensi" },
+                           { startTime: "09:15", endTime: "10:00", title: "Laporan Ketua", description: "Laporan dari ketua rapat" },
+                           { startTime: "10:00", endTime: "11:00", title: "Pembahasan Agenda", description: "Diskusi agenda utama" },
+                           { startTime: "11:00", endTime: "11:15", title: "Break", description: "Istirahat sejenak" },
+                           { startTime: "11:15", endTime: "12:00", title: "Pengambilan Keputusan", description: "Voting dan kesepakatan" },
+                           { startTime: "12:00", endTime: "12:15", title: "Penutupan", description: "Penutupan dan notulensi" }
+                       ]
+                   }
+               ],
+               concert: [
+                   {
+                       name: "Konser Musik",
+                       description: "Template konser live",
+                       category: "Konser",
+                       schedules: [
+                           { startTime: "17:00", endTime: "18:00", title: "Pembukaan Gerbang", description: "Peserta mulai masuk venue" },
+                           { startTime: "18:00", endTime: "19:00", title: "Opening Act", description: "Penampilan pembuka" },
+                           { startTime: "19:00", endTime: "19:15", title: "Jeda", description: "Persiapan artis utama" },
+                           { startTime: "19:15", endTime: "21:00", title: "Main Performance", description: "Penampilan artis utama" },
+                           { startTime: "21:00", endTime: "21:30", title: "Encore", description: "Lagu tambahan" },
+                           { startTime: "21:30", endTime: "22:00", title: "Penutupan", description: "Ucapan terima kasih" }
+                       ]
+                   }
+               ],
+               exhibition: [
+                   {
+                       name: "Pameran Produk",
+                       description: "Template pameran dagang",
+                       category: "Pameran",
+                       schedules: [
+                           { startTime: "08:00", endTime: "09:00", title: "Persiapan Stand", description: "Setup booth exhibitor" },
+                           { startTime: "09:00", endTime: "09:30", title: "Grand Opening", description: "Pembukaan resmi pameran" },
+                           { startTime: "09:30", endTime: "12:00", title: "Sesi 1 Pameran", description: "Kunjungan publik sesi pagi" },
+                           { startTime: "12:00", endTime: "13:00", title: "Break", description: "Istirahat siang" },
+                           { startTime: "13:00", endTime: "16:00", title: "Sesi 2 Pameran", description: "Kunjungan publik sesi siang" },
+                           { startTime: "16:00", endTime: "17:00", title: "Penutupan", description: "Penutupan hari pertama" }
+                       ]
+                   }
+               ],
+               sports: [
+                   {
+                       name: "Event Olahraga",
+                       description: "Template turnamen olahraga",
+                       category: "Olahraga",
+                       schedules: [
+                           { startTime: "07:00", endTime: "07:30", title: "Registrasi Atlet", description: "Check-in peserta" },
+                           { startTime: "07:30", endTime: "08:00", title: "Technical Meeting", description: "Briefing teknis dan aturan" },
+                           { startTime: "08:00", endTime: "08:15", title: "Pembukaan", description: "Upacara pembukaan" },
+                           { startTime: "08:15", endTime: "12:00", title: "Babak Penyisihan", description: "Pertandingan babak awal" },
+                           { startTime: "12:00", endTime: "13:00", title: "Ishoma", description: "Istirahat dan makan siang" },
+                           { startTime: "13:00", endTime: "15:00", title: "Semi Final", description: "Pertandingan semi final" },
+                           { startTime: "15:00", endTime: "16:00", title: "Final", description: "Pertandingan final" },
+                           { startTime: "16:00", endTime: "16:30", title: "Awarding", description: "Pembagian hadiah" }
+                       ]
+                   }
+               ],
+               training: [
+                   {
+                       name: "Pelatihan Karyawan",
+                       description: "Template training corporate",
+                       category: "Pelatihan",
+                       schedules: [
+                           { startTime: "08:00", endTime: "08:30", title: "Registrasi", description: "Absensi peserta training" },
+                           { startTime: "08:30", endTime: "08:45", title: "Ice Breaking", description: "Perkenalan dan permainan" },
+                           { startTime: "08:45", endTime: "10:15", title: "Materi 1", description: "Sesi pembelajaran pertama" },
+                           { startTime: "10:15", endTime: "10:30", title: "Break", description: "Coffee break" },
+                           { startTime: "10:30", endTime: "12:00", title: "Materi 2", description: "Sesi pembelajaran kedua" },
+                           { startTime: "12:00", endTime: "13:00", title: "Lunch", description: "Makan siang" },
+                           { startTime: "13:00", endTime: "14:30", title: "Praktik", description: "Praktik dan simulasi" },
+                           { startTime: "14:30", endTime: "15:00", title: "Evaluasi", description: "Test dan feedback" },
+                           { startTime: "15:00", endTime: "15:15", title: "Penutupan", description: "Sertifikat dan closing" }
+                       ]
+                   }
+               ]
+           };
+   
+           function selectEventType(type) {
+               selectedEventType = type;
+               document.querySelectorAll('.event-type-card').forEach(card => {
+                   card.classList.remove('selected');
+               });
+               const selectedCard = document.querySelector(`[data-type="${type}"]`);
+               if (selectedCard) {
+                   selectedCard.classList.add('selected');
+               }
+               
+               // Tampilkan nama jenis acara yang lebih user-friendly
+               const typeNames = {
+                   'workshop': 'Workshop',
+                   'seminar': 'Seminar',
+                   'conference': 'Konferensi',
+                   'wedding': 'Pernikahan',
+                   'meeting': 'Rapat',
+                   'concert': 'Konser',
+                   'exhibition': 'Pameran',
+                   'sports': 'Olahraga',
+                   'training': 'Pelatihan',
+                   'custom': 'Custom'
+               };
+               
+               showToast(`✅ Jenis acara: ${typeNames[type] || type}`);
+               triggerHaptic();
+               
+               // Auto-fill informasi default berdasarkan jenis acara
+               autoFillEventInfo(type);
+               
+               // Tanyakan apakah ingin menggunakan template
+               setTimeout(() => {
+                   if (confirm(`Gunakan template ${typeNames[type]}? Template akan mengisi jadwal otomatis.`)) {
+                       applyTemplateByType(type);
+                   }
+               }, 500);
+           }
+   
+           function autoFillEventInfo(type) {
+               // Auto-fill default values berdasarkan jenis acara
+               const defaults = {
+                   'workshop': {
+                       title: 'Workshop',
+                       subtitle: 'Program Pelatihan dan Pengembangan',
+                       participants: '30-50 peserta',
+                       equipment: 'Proyektor, Laptop, Sound system, Whiteboard, Spidol, Modul pelatihan',
+                       notes: 'Peserta diharapkan membawa laptop dan alat tulis'
+                   },
+                   'seminar': {
+                       title: 'Seminar',
+                       subtitle: 'Seminar Nasional',
+                       participants: '100-200 peserta',
+                       equipment: 'Proyektor, Sound system, Podium, Banner, Sertifikat',
+                       notes: 'Dresscode formal, registrasi dibuka 1 jam sebelum acara'
+                   },
+                   'conference': {
+                       title: 'Konferensi',
+                       subtitle: 'Konferensi Internasional',
+                       participants: '200-500 peserta',
+                       equipment: 'Proyektor, Sound system, Booth registrasi, Name tag, Goodie bag',
+                       notes: 'Acara berlangsung multi-hari, akomodasi disediakan'
+                   },
+                   'wedding': {
+                       title: 'Resepsi Pernikahan',
+                       subtitle: 'Pernikahan',
+                       participants: '200-300 tamu undangan',
+                       equipment: 'Sound system, Dekorasi, Catering, Lighting, Photographer, Videographer',
+                       notes: 'Dresscode formal, konfirmasi kehadiran H-7'
+                   },
+                   'meeting': {
+                       title: 'Rapat',
+                       subtitle: 'Rapat Koordinasi',
+                       participants: '10-20 peserta',
+                       equipment: 'Proyektor, Laptop, Notulen, Konsumsi',
+                       notes: 'Harap hadir tepat waktu, bawa materi presentasi'
+                   },
+                   'concert': {
+                       title: 'Konser Musik',
+                       subtitle: 'Live Concert',
+                       participants: '500-1000 penonton',
+                       equipment: 'Stage, Sound system, Lighting, Backdrop, Security, Tiket',
+                       notes: 'Gerbang dibuka 2 jam sebelum acara, dilarang membawa makanan dari luar'
+                   },
+                   'exhibition': {
+                       title: 'Pameran',
+                       subtitle: 'Exhibition & Expo',
+                       participants: '50-100 exhibitor, 1000+ pengunjung',
+                       equipment: 'Booth stand, Banner, Katalog, Security',
+                       notes: 'Setup booth 1 hari sebelum acara, bawa ID card'
+                   },
+                   'sports': {
+                       title: 'Event Olahraga',
+                       subtitle: 'Turnamen',
+                       participants: '20-30 tim',
+                       equipment: 'Lapangan, Wasit, Medis, Piala, Sertifikat, Air minum',
+                       notes: 'Technical meeting wajib dihadiri, bawa perlengkapan sendiri'
+                   },
+                   'training': {
+                       title: 'Pelatihan',
+                       subtitle: 'Training Program',
+                       participants: '20-30 peserta',
+                       equipment: 'Proyektor, Modul training, Alat tulis, Sertifikat',
+                       notes: 'Absensi wajib minimal 80%, ujian di akhir sesi'
+                   },
+                   'custom': {
+                       title: '',
+                       subtitle: '',
+                       participants: '',
+                       equipment: '',
+                       notes: ''
+                   }
+               };
+               
+               const info = defaults[type] || defaults['custom'];
+               
+               // Hanya isi jika field masih kosong
+               if (!document.getElementById('title').value) {
+                   document.getElementById('title').value = info.title;
+               }
+               if (!document.getElementById('subtitle').value) {
+                   document.getElementById('subtitle').value = info.subtitle;
+               }
+               if (!document.getElementById('participants').value) {
+                   document.getElementById('participants').value = info.participants;
+               }
+               if (!document.getElementById('equipment').value) {
+                   document.getElementById('equipment').value = info.equipment;
+               }
+               if (!document.getElementById('notes').value) {
+                   document.getElementById('notes').value = info.notes;
+               }
+           }
+   
+           function applyTemplateByType(type) {
+               if (!templates[type] || templates[type].length === 0) {
+                   alert('Template untuk jenis acara ini belum tersedia');
+                   return;
+               }
+               
+               // Ambil template pertama dari kategori
+               const template = templates[type][0];
+               
+               if (Object.keys(schedules).length > 0) {
+                   if (!confirm('Menerapkan template akan menghapus semua jadwal yang ada. Lanjutkan?')) {
+                       return;
+                   }
+               }
+               
+               document.getElementById('scheduleContainer').innerHTML = '';
+               scheduleCount = 0;
+               Object.keys(schedules).forEach(key => delete schedules[key]);
+               
+               template.schedules.forEach(schedule => {
+                   addSchedule(schedule.startTime, schedule.endTime, schedule.title, schedule.description);
+               });
+               
+               showToast(`✅ Template "${template.name}" diterapkan`);
+               
+               setTimeout(() => {
+                   const sectionWidth = window.innerWidth;
+                   document.getElementById('swiperWrapper').scrollTo({
+                       left: sectionWidth * 1,
+                       behavior: 'smooth'
+                   });
+               }, 500);
+           }
+   
+           function calculateDuration(startTime, endTime) {
+               if (!startTime || !endTime) return '';
+               const [sh, sm] = startTime.split(':').map(Number);
+               const [eh, em] = endTime.split(':').map(Number);
+               const minutes = (eh * 60 + em) - (sh * 60 + sm);
+               if (minutes <= 0) return '';
+               const hours = Math.floor(minutes / 60);
+               const mins = minutes % 60;
+               if (hours > 0 && mins > 0) return `${hours}j ${mins}m`;
+               if (hours > 0) return `${hours} jam`;
+               return `${mins} menit`;
+           }
+   
+           function getDurationClass(startTime, endTime) {
+               if (!startTime || !endTime) return '';
+               const [sh, sm] = startTime.split(':').map(Number);
+               const [eh, em] = endTime.split(':').map(Number);
+               const minutes = (eh * 60 + em) - (sh * 60 + sm);
+               if (minutes <= 0) return '';
+               if (minutes <= 30) return 'short';
+               if (minutes <= 90) return 'medium';
+               return 'long';
+           }
+   
+           function addMinutesToTime(time, minutesToAdd) {
+               if (!time) return '';
+               const [h, m] = time.split(':').map(Number);
+               const totalMinutes = h * 60 + m + minutesToAdd;
+               const newH = Math.floor(totalMinutes / 60) % 24;
+               const newM = totalMinutes % 60;
+               return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+           }
+   
+           function checkTimeConflict(id, startTime, endTime) {
+               if (!startTime || !endTime) return null;
+               
+               const [sh, sm] = startTime.split(':').map(Number);
+               const [eh, em] = endTime.split(':').map(Number);
+               const start = sh * 60 + sm;
+               const end = eh * 60 + em;
+   
+               if (end <= start) {
+                   return { type: 'invalid', message: '⚠️ Waktu selesai harus lebih besar dari waktu mulai!' };
+               }
+   
+               for (let otherId in schedules) {
+                   if (otherId != id) {
+                       const other = schedules[otherId];
+                       if (other.startTime && other.endTime) {
+                           const [osh, osm] = other.startTime.split(':').map(Number);
+                           const [oeh, oem] = other.endTime.split(':').map(Number);
+                           const ostart = osh * 60 + osm;
+                           const oend = oeh * 60 + oem;
+   
+                           if ((start >= ostart && start < oend) || (end > ostart && end <= oend) || (start <= ostart && end >= oend)) {
+                               return { type: 'overlap', message: `⚠️ Bentrok dengan Kegiatan #${otherId}`, otherId };
+                           }
+                       }
+                   }
+               }
+   
+               return null;
+           }
+   
+           function suggestNextTime(id) {
+               const allTimes = Object.values(schedules)
+                   .filter(s => s.endTime)
+                   .map(s => s.endTime)
+                   .sort();
+               
+               if (allTimes.length > 0) {
+                   return allTimes[allTimes.length - 1];
+               }
+               return '08:00';
+           }
+           
+           function addSchedule(startTime = '', endTime = '', title = '', description = '') {
+               scheduleCount++;
+               const id = scheduleCount;
+               
+               if (!startTime) {
+                   startTime = suggestNextTime(id);
+               }
+               
+               schedules[id] = { startTime, endTime, title, description };
+               
+               const duration = calculateDuration(startTime, endTime);
+               const durationClass = getDurationClass(startTime, endTime);
+               const durationBadge = duration ? `<span class="duration-badge ${durationClass}">${duration}</span>` : '';
+               
+               const scheduleHTML = `
+                   <div class="activity-item" id="schedule-${id}">
+                       <div class="activity-header">
+                           <div>
+                               <h4>Kegiatan #${id} ${durationBadge}</h4>
+                           </div>
+                           <div class="activity-actions">
+                               <button class="btn-icon" onclick="duplicateSchedule(${id})" title="Duplikat">📋</button>
+                               <button class="btn-icon" onclick="removeSchedule(${id})" title="Hapus">🗑️</button>
+                           </div>
+                       </div>
+                       
+                       <div class="time-input-group">
+                           <div class="form-group">
+                               <label>⏰ Waktu Mulai:</label>
+                               <input type="time" id="startTime-${id}" value="${startTime}" onchange="updateSchedule(${id})">
+                           </div>
+                           <div class="form-group">
+                               <label>⏰ Waktu Selesai:</label>
+                               <input type="time" id="endTime-${id}" value="${endTime}" onchange="updateSchedule(${id})">
+                           </div>
+                       </div>
+                       
+                       <div class="quick-duration">
+                           <div class="quick-duration-label">⚡ Atur Durasi Cepat:</div>
+                           <button class="quick-btn" onclick="setQuickDuration(${id}, 15)">15 menit</button>
+                           <button class="quick-btn" onclick="setQuickDuration(${id}, 30)">30 menit</button>
+                           <button class="quick-btn" onclick="setQuickDuration(${id}, 60)">1 jam</button>
+                           <button class="quick-btn" onclick="setQuickDuration(${id}, 90)">1.5 jam</button>
+                           <button class="quick-btn" onclick="setQuickDuration(${id}, 120)">2 jam</button>
+                       </div>
+                       
+                       <div id="conflict-${id}"></div>
+                       
+                       <div class="form-group">
+                           <label>📝 Judul Kegiatan:</label>
+                           <input type="text" id="title-${id}" value="${title}" placeholder="Contoh: Registrasi & Pembukaan" onchange="updateSchedule(${id})">
+                       </div>
+                       <div class="form-group">
+                           <label>📄 Deskripsi Kegiatan:</label>
+                           <textarea id="description-${id}" placeholder="Jelaskan detail kegiatan..." onchange="updateSchedule(${id})">${description}</textarea>
+                       </div>
+                   </div>
+               `;
+               
+               document.getElementById('scheduleContainer').insertAdjacentHTML('beforeend', scheduleHTML);
+               
+               setTimeout(() => {
+                   const newItem = document.getElementById(`schedule-${id}`);
+                   if (newItem) {
+                       newItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                   }
+               }, 100);
+           }
+   
+           function setQuickDuration(id, minutes) {
+               const startTime = document.getElementById(`startTime-${id}`).value;
+               if (!startTime) {
+                   alert('⚠️ Tentukan waktu mulai terlebih dahulu!');
+                   return;
+               }
+               
+               const endTime = addMinutesToTime(startTime, minutes);
+               document.getElementById(`endTime-${id}`).value = endTime;
+               updateSchedule(id);
+               showToast(`⏱️ Durasi ${minutes} menit diterapkan`);
+           }
+   
+           function duplicateSchedule(id) {
+               const schedule = schedules[id];
+               if (schedule) {
+                   addSchedule(schedule.startTime, schedule.endTime, schedule.title, schedule.description);
+                   showToast('✅ Jadwal berhasil diduplikat');
+               }
+           }
+           
+           function updateSchedule(id) {
+               schedules[id] = {
+                   startTime: document.getElementById(`startTime-${id}`).value,
+                   endTime: document.getElementById(`endTime-${id}`).value,
+                   title: document.getElementById(`title-${id}`).value,
+                   description: document.getElementById(`description-${id}`).value
+               };
+               
+               const duration = calculateDuration(schedules[id].startTime, schedules[id].endTime);
+               const durationClass = getDurationClass(schedules[id].startTime, schedules[id].endTime);
+               const headerElement = document.querySelector(`#schedule-${id} .activity-header h4`);
+               if (headerElement) {
+                   const durationBadge = duration ? `<span class="duration-badge ${durationClass}">${duration}</span>` : '';
+                   headerElement.innerHTML = `Kegiatan #${id} ${durationBadge}`;
+               }
+   
+               const conflict = checkTimeConflict(id, schedules[id].startTime, schedules[id].endTime);
+               const conflictDiv = document.getElementById(`conflict-${id}`);
+               
+               if (conflict) {
+                   if (conflict.type === 'invalid') {
+                       conflictDiv.innerHTML = `<div class="time-conflict">${conflict.message}</div>`;
+                   } else if (conflict.type === 'overlap') {
+                       conflictDiv.innerHTML = `<div class="time-overlap-warning">${conflict.message}</div>`;
+                   }
+               } else {
+                   conflictDiv.innerHTML = '';
+               }
+           }
+           
+           function removeSchedule(id) {
+               if (confirm('Hapus kegiatan ini?')) {
+                   delete schedules[id];
+                   document.getElementById(`schedule-${id}`).remove();
+                   showToast('🗑️ Kegiatan berhasil dihapus');
+               }
+           }
+           
+           function saveAndNext() {
+               const title = document.getElementById('title').value;
+               const eventDate = document.getElementById('eventDate').value;
+               
+               if (!title) {
+                   alert('⚠️ Judul acara tidak boleh kosong!');
+                   return;
+               }
+               
+               if (!eventDate) {
+                   alert('⚠️ Tanggal acara tidak boleh kosong!');
+                   return;
+               }
+               
+               showToast('✅ Informasi acara berhasil disimpan');
+               
+               setTimeout(() => {
+                   const sectionWidth = window.innerWidth;
+                   document.getElementById('swiperWrapper').scrollTo({
+                       left: sectionWidth * 1,
+                       behavior: 'smooth'
+                   });
+               }, 500);
+           }
+           
+           function saveInfo() {
+               showToast('✅ Informasi tambahan berhasil disimpan');
+               
+               setTimeout(() => {
+                   const sectionWidth = window.innerWidth;
+                   document.getElementById('swiperWrapper').scrollTo({
+                       left: sectionWidth * 3,
+                       behavior: 'smooth'
+                   });
+               }, 500);
+           }
+           
+           function refreshPreview() {
+               const loadingOverlay = document.getElementById('loadingOverlay');
+               loadingOverlay.classList.add('active');
+               
+               setTimeout(() => {
+                   generatePreview();
+                   loadingOverlay.classList.remove('active');
+                   showToast('✅ Preview berhasil diperbarui');
+               }, 500);
+           }
+   
+           function updatePreviewFooter() {
+               const footer1 = document.getElementById('customFooter1').value;
+               const footer2 = document.getElementById('customFooter2').value;
+               
+               document.getElementById('previewFooter1').textContent = footer1 || 'Dibuat dengan Rundown Editor Universal';
+               document.getElementById('previewFooter2').textContent = footer2 || '📱 Mobile Event Management';
+           }
+           
+           function generatePreview() {
+               const title = document.getElementById('title').value;
+               const subtitle = document.getElementById('subtitle').value;
+               document.getElementById('previewTitle').textContent = `📋 ${title || 'Judul Acara'}`;
+               document.getElementById('previewSubtitle').textContent = subtitle || 'Sub judul acara';
+               
+               // Preview Meta
+               const eventDate = document.getElementById('eventDate').value;
+               const location = document.getElementById('location').value;
+               const organizer = document.getElementById('organizer').value;
+               const participants = document.getElementById('participants').value;
+               
+               let metaHTML = '';
+               if (eventDate) {
+                   const date = new Date(eventDate);
+                   const options = { day: 'numeric', month: 'short', year: 'numeric' };
+                   metaHTML += `<div class="preview-meta-item"><strong>📅 Tanggal</strong>${date.toLocaleDateString('id-ID', options)}</div>`;
+               }
+               if (location) {
+                   metaHTML += `<div class="preview-meta-item"><strong>📍 Lokasi</strong>${location}</div>`;
+               }
+               if (organizer) {
+                   metaHTML += `<div class="preview-meta-item"><strong>🏢 Penyelenggara</strong>${organizer}</div>`;
+               }
+               if (participants) {
+                   metaHTML += `<div class="preview-meta-item"><strong>👥 Peserta</strong>${participants}</div>`;
+               }
+               document.getElementById('previewMeta').innerHTML = metaHTML;
+               
+               let scheduleHTML = '<div class="timeline">';
+               
+               const sortedSchedules = Object.keys(schedules).sort((a, b) => {
+                   const timeA = schedules[a].startTime;
+                   const timeB = schedules[b].startTime;
+                   return timeA.localeCompare(timeB);
+               });
+               
+               if (sortedSchedules.length === 0) {
+                   scheduleHTML += '<p style="text-align: center; color: #999; padding: 20px;">Belum ada jadwal kegiatan</p>';
+               } else {
+                   sortedSchedules.forEach(id => {
+                       const s = schedules[id];
+                       if (s.startTime && s.title) {
+                           const duration = calculateDuration(s.startTime, s.endTime);
+                           const durationBadge = duration ? `<span class="timeline-duration">${duration}</span>` : '';
+                           
+                           scheduleHTML += `
+                               <div class="timeline-item">
+                                   <div class="time">${s.startTime} - ${s.endTime || '—'}${durationBadge}</div>
+                                   <div class="activity">
+                                       <h4>${s.title}</h4>
+                                       <p>${s.description || 'Tidak ada deskripsi'}</p>
+                                   </div>
+                               </div>
+                           `;
+                       }
+                   });
+               }
+               
+               scheduleHTML += '</div>';
+               document.getElementById('previewSchedule').innerHTML = scheduleHTML;
+               
+               const equipment = document.getElementById('equipment').value;
+               const contact = document.getElementById('contact').value;
+               const notes = document.getElementById('notes').value;
+               
+               let infoHTML = '';
+               if (eventDate) {
+                   const date = new Date(eventDate);
+                   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                   infoHTML += `<li><strong>📅 Tanggal:</strong> ${date.toLocaleDateString('id-ID', options)}</li>`;
+               }
+               if (location) infoHTML += `<li><strong>📍 Tempat:</strong> ${location}</li>`;
+               if (organizer) infoHTML += `<li><strong>🏢 Penyelenggara:</strong> ${organizer}</li>`;
+               if (participants) infoHTML += `<li><strong>👥 Target:</strong> ${participants}</li>`;
+               if (equipment) {
+                   const items = equipment.split(',').map(item => item.trim()).filter(item => item);
+                   if (items.length > 0) {
+                       infoHTML += `<li><strong>🎯 Perlengkapan:</strong> ${items.join(', ')}</li>`;
+                   }
+               }
+               if (contact) infoHTML += `<li><strong>📞 Kontak:</strong> ${contact}</li>`;
+               if (notes) infoHTML += `<li><strong>📝 Catatan:</strong> ${notes}</li>`;
+               
+               if (!infoHTML) {
+                   infoHTML = '<li style="color: #999;">Belum ada informasi tambahan</li>';
+               }
+               
+               document.getElementById('previewInfo').innerHTML = infoHTML;
+               updatePreviewFooter();
+           }
+   
+           function showTemplates() {
+               const templatesList = document.getElementById('templatesList');
+               templatesList.innerHTML = '';
+               
+               let allTemplates = [];
+               Object.keys(templates).forEach(category => {
+                   templates[category].forEach((template, index) => {
+                       allTemplates.push({ ...template, category, index });
+                   });
+               });
+               
+               allTemplates.forEach((template) => {
+                   const templateHTML = `
+                       <div class="template-item" onclick="applyTemplate('${template.category}', ${template.index})">
+                           <h4>${template.name}</h4>
+                           <p>${template.description}</p>
+                           <span class="template-category">${template.category}</span>
+                           <p style="margin-top: 5px; color: var(--primary-color); font-weight: 600;">${template.schedules.length} kegiatan</p>
+                       </div>
+                   `;
+                   templatesList.insertAdjacentHTML('beforeend', templateHTML);
+               });
+               
+               document.getElementById('templatesModal').classList.add('active');
+           }
+   
+           function applyTemplate(category, index) {
+               if (Object.keys(schedules).length > 0) {
+                   if (!confirm('Menerapkan template akan menghapus semua jadwal yang ada. Lanjutkan?')) {
+                       return;
+                   }
+               }
+               
+               document.getElementById('scheduleContainer').innerHTML = '';
+               scheduleCount = 0;
+               Object.keys(schedules).forEach(key => delete schedules[key]);
+               
+               const template = templates[category][index];
+               template.schedules.forEach(schedule => {
+                   addSchedule(schedule.startTime, schedule.endTime, schedule.title, schedule.description);
+               });
+               
+               closeModal('templatesModal');
+               showToast(`✅ Template "${template.name}" diterapkan`);
+               
+               setTimeout(() => {
+                   const sectionWidth = window.innerWidth;
+                   document.getElementById('swiperWrapper').scrollTo({
+                       left: sectionWidth * 1,
+                       behavior: 'smooth'
+                   });
+               }, 500);
+           }
+   
+           function showStats() {
+               const statsContent = document.getElementById('statsContent');
+               
+               const totalSchedules = Object.keys(schedules).length;
+               let totalDuration = 0;
+               let earliestTime = null;
+               let latestTime = null;
+               
+               Object.values(schedules).forEach(schedule => {
+                   if (schedule.startTime && schedule.endTime) {
+                       const [sh, sm] = schedule.startTime.split(':').map(Number);
+                       const [eh, em] = schedule.endTime.split(':').map(Number);
+                       const minutes = (eh * 60 + em) - (sh * 60 + sm);
+                       if (minutes > 0) totalDuration += minutes;
+                       
+                       if (!earliestTime || schedule.startTime < earliestTime) {
+                           earliestTime = schedule.startTime;
+                       }
+                       if (!latestTime || schedule.endTime > latestTime) {
+                           latestTime = schedule.endTime;
+                       }
+                   }
+               });
+               
+               const hours = Math.floor(totalDuration / 60);
+               const minutes = totalDuration % 60;
+               const durationText = hours > 0 ? `${hours}j ${minutes}m` : `${minutes}m`;
+               
+               statsContent.innerHTML = `
+                   <div class="stats-grid">
+                       <div class="stat-card">
+                           <div class="stat-value">${totalSchedules}</div>
+                           <div class="stat-label">Total Kegiatan</div>
+                       </div>
+                       <div class="stat-card">
+                           <div class="stat-value">${durationText}</div>
+                           <div class="stat-label">Total Durasi</div>
+                       </div>
+                       <div class="stat-card">
+                           <div class="stat-value">${earliestTime || '-'}</div>
+                           <div class="stat-label">Mulai</div>
+                       </div>
+                       <div class="stat-card">
+                           <div class="stat-value">${latestTime || '-'}</div>
+                           <div class="stat-label">Selesai</div>
+                       </div>
+                   </div>
+               `;
+               
+               document.getElementById('statsModal').classList.add('active');
+           }
+   
+           function showExportModal() {
+               document.getElementById('exportModal').classList.add('active');
+           }
+   
+           function closeModal(modalId) {
+               document.getElementById(modalId).classList.remove('active');
+           }
+   
+           function saveData() {
+               const data = {
+                   eventType: selectedEventType,
+                   title: document.getElementById('title').value,
+                   subtitle: document.getElementById('subtitle').value,
+                   eventDate: document.getElementById('eventDate').value,
+                   location: document.getElementById('location').value,
+                   organizer: document.getElementById('organizer').value,
+                   participants: document.getElementById('participants').value,
+                   equipment: document.getElementById('equipment').value,
+                   contact: document.getElementById('contact').value,
+                   notes: document.getElementById('notes').value,
+                   customFooter1: document.getElementById('customFooter1').value,
+                   customFooter2: document.getElementById('customFooter2').value,
+                   schedules: schedules,
+                   scheduleCount: scheduleCount
+               };
+               
+               const jsonData = JSON.stringify(data);
+               const blob = new Blob([jsonData], { type: 'application/json' });
+               const url = URL.createObjectURL(blob);
+               const a = document.createElement('a');
+               a.href = url;
+               a.download = `rundown_${data.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now()}.json`;
+               document.body.appendChild(a);
+               a.click();
+               document.body.removeChild(a);
+               URL.revokeObjectURL(url);
+               
+               showToast('💾 Data berhasil disimpan');
+           }
+   
+           function loadData() {
+               const input = document.createElement('input');
+               input.type = 'file';
+               input.accept = 'application/json';
+               input.onchange = (e) => {
+                   const file = e.target.files[0];
+                   if (file) {
+                       const reader = new FileReader();
+                       reader.onload = (event) => {
+                           try {
+                               const data = JSON.parse(event.target.result);
+                               
+                               if (data.eventType) {
+                                   selectedEventType = data.eventType;
+                                   document.querySelectorAll('.event-type-card').forEach(card => {
+                                       card.classList.remove('selected');
+                                   });
+                                   const card = document.querySelector(`[data-type="${data.eventType}"]`);
+                                   if (card) card.classList.add('selected');
+                               }
+                               
+                               document.getElementById('title').value = data.title || '';
+                               document.getElementById('subtitle').value = data.subtitle || '';
+                               document.getElementById('eventDate').value = data.eventDate || '';
+                               document.getElementById('location').value = data.location || '';
+                               document.getElementById('organizer').value = data.organizer || '';
+                               document.getElementById('participants').value = data.participants || '';
+                               document.getElementById('equipment').value = data.equipment || '';
+                               document.getElementById('contact').value = data.contact || '';
+                               document.getElementById('notes').value = data.notes || '';
+                               document.getElementById('customFooter1').value = data.customFooter1 || '';
+                               document.getElementById('customFooter2').value = data.customFooter2 || '';
+                               
+                               document.getElementById('scheduleContainer').innerHTML = '';
+                               Object.keys(schedules).forEach(key => delete schedules[key]);
+                               scheduleCount = data.scheduleCount || 0;
+                               
+                               Object.keys(data.schedules).forEach(id => {
+                                   const s = data.schedules[id];
+                                   schedules[id] = s;
+                                   
+                                   const duration = calculateDuration(s.startTime, s.endTime);
+                                   const durationClass = getDurationClass(s.startTime, s.endTime);
+                                   const durationBadge = duration ? `<span class="duration-badge ${durationClass}">${duration}</span>` : '';
+                                   
+                                   const scheduleHTML = `
+                                       <div class="activity-item" id="schedule-${id}">
+                                           <div class="activity-header">
+                                               <div>
+                                                   <h4>Kegiatan #${id} ${durationBadge}</h4>
+                                               </div>
+                                               <div class="activity-actions">
+                                                   <button class="btn-icon" onclick="duplicateSchedule(${id})" title="Duplikat">📋</button>
+                                                   <button class="btn-icon" onclick="removeSchedule(${id})" title="Hapus">🗑️</button>
+                                               </div>
+                                           </div>
+                                           
+                                           <div class="time-input-group">
+                                               <div class="form-group">
+                                                   <label>⏰ Waktu Mulai:</label>
+                                                   <input type="time" id="startTime-${id}" value="${s.startTime}" onchange="updateSchedule(${id})">
+                                               </div>
+                                               <div class="form-group">
+                                                   <label>⏰ Waktu Selesai:</label>
+                                                   <input type="time" id="endTime-${id}" value="${s.endTime}" onchange="updateSchedule(${id})">
+                                               </div>
+                                           </div>
+                                           
+                                           <div class="quick-duration">
+                                               <div class="quick-duration-label">⚡ Atur Durasi Cepat:</div>
+                                               <button class="quick-btn" onclick="setQuickDuration(${id}, 15)">15 menit</button>
+                                               <button class="quick-btn" onclick="setQuickDuration(${id}, 30)">30 menit</button>
+                                               <button class="quick-btn" onclick="setQuickDuration(${id}, 60)">1 jam</button>
+                                               <button class="quick-btn" onclick="setQuickDuration(${id}, 90)">1.5 jam</button>
+                                               <button class="quick-btn" onclick="setQuickDuration(${id}, 120)">2 jam</button>
+                                           </div>
+                                           
+                                           <div id="conflict-${id}"></div>
+                                           
+                                           <div class="form-group">
+                                               <label>📝 Judul Kegiatan:</label>
+                                               <input type="text" id="title-${id}" value="${s.title}" placeholder="Contoh: Registrasi & Pembukaan" onchange="updateSchedule(${id})">
+                                           </div>
+                                           <div class="form-group">
+                                               <label>📄 Deskripsi Kegiatan:</label>
+                                               <textarea id="description-${id}" placeholder="Jelaskan detail kegiatan..." onchange="updateSchedule(${id})">${s.description}</textarea>
+                                           </div>
+                                       </div>
+                                   `;
+                                   
+                                   document.getElementById('scheduleContainer').insertAdjacentHTML('beforeend', scheduleHTML);
+                               });
+                               
+                               generatePreview();
+                               showToast('📂 Data berhasil dimuat');
+                           } catch (error) {
+                               alert('❌ Error: File tidak valid!');
+                               console.error(error);
+                           }
+                       };
+                       reader.readAsText(file);
+                   }
+               };
+               input.click();
+           }
+   
+           function clearAll() {
+               if (confirm('⚠️ Hapus semua data? Tindakan ini tidak dapat dibatalkan!')) {
+                   document.getElementById('scheduleContainer').innerHTML = '';
+                   scheduleCount = 0;
+                   Object.keys(schedules).forEach(key => delete schedules[key]);
+                   
+                   selectedEventType = '';
+                   document.querySelectorAll('.event-type-card').forEach(card => {
+                       card.classList.remove('selected');
+                   });
+                   
+                   document.getElementById('title').value = '';
+                   document.getElementById('subtitle').value = '';
+                   document.getElementById('location').value = '';
+                   document.getElementById('organizer').value = '';
+                   document.getElementById('participants').value = '';
+                   document.getElementById('equipment').value = '';
+                   document.getElementById('contact').value = '';
+                   document.getElementById('notes').value = '';
+                   document.getElementById('customFooter1').value = '';
+                   document.getElementById('customFooter2').value = '';
+                   
+                   const today = new Date().toISOString().split('T')[0];
+                   document.getElementById('eventDate').value = today;
+                   
+                   generatePreview();
+                   showToast('🗑️ Semua data berhasil dihapus');
+               }
+           }
+   
+function exportAsPDF() {
+  const element = document.querySelector('.preview-container');
+
+  // Sembunyikan tombol navigasi, header, dsb.
+  const hiddenEls = document.querySelectorAll('.btn, .header-actions, .nav-dots, .swipe-hint');
+  hiddenEls.forEach(el => el.style.display = 'none');
+
+  // Ambil semua CSS aktif agar hasil PDF tetap sesuai style
+  const css = Array.from(document.styleSheets)
+    .map(sheet => {
+      try { return Array.from(sheet.cssRules).map(rule => rule.cssText).join(''); }
+      catch (e) { return ''; }
+    })
+    .join('');
+
+  // Tambahkan footer opsional (bisa dikosongkan)
+  const customFooter = document.getElementById('customFooterText')?.value || '';
+  const footerHTML = customFooter ? `
+    <div style="text-align:center;font-size:10px;color:#777;margin-top:20px;border-top:1px solid #ddd;padding-top:5px;">
+      ${customFooter}
+    </div>` : '';
+
+  // Gabungkan HTML final
+  const htmlContent = `
+  <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          margin: 20px;
+        }
+        ${css}
+        @page { size: A4; margin: 15mm; }
+        .preview-container { box-shadow: none !important; }
+      </style>
+    </head>
+    <body>
+      ${element.outerHTML}
+      ${footerHTML}
+    </body>
+  </html>`;
+
+  const title = document.getElementById('title').value || 'rundown';
+  const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now()}.pdf`;
+
+  const options = {
+    documentSize: 'A4',
+    type: 'file',
+    fileName: fileName,
+    landscape: false
+  };
+
+  pdf.fromData(htmlContent, options)
+    .then(() => showToast('✅ PDF berhasil dibuat dan disimpan'))
+    .catch(err => showToast('❌ Gagal membuat PDF: ' + err))
+    .finally(() => {
+      hiddenEls.forEach(el => el.style.display = '');
+    });
+}
+   
+           function sendToWhatsApp() {
+               const phoneNumber = document.getElementById('whatsappNumber').value.trim();
+               
+               if (!phoneNumber) {
+                   alert('⚠️ Nomor WhatsApp tidak boleh kosong!');
+                   return;
+               }
+               
+               const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
+               if (cleanNumber.length < 10) {
+                   alert('⚠️ Nomor WhatsApp tidak valid! Pastikan format benar (contoh: 628123456789)');
+                   return;
+               }
+               
+               closeModal('exportModal');
+               showToast('📱 Menyiapkan pengiriman...');
+               
+               let text = `*${document.getElementById('title').value || 'Rundown Acara'}*\n`;
+               text += `_${document.getElementById('subtitle').value || ''}_\n\n`;
+               
+               const eventDate = document.getElementById('eventDate').value;
+               if (eventDate) {
+                   const date = new Date(eventDate);
+                   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                   text += `📅 *Tanggal:* ${date.toLocaleDateString('id-ID', options)}\n`;
+               }
+               
+               const location = document.getElementById('location').value;
+               if (location) text += `📍 *Tempat:* ${location}\n`;
+               
+               const organizer = document.getElementById('organizer').value;
+               if (organizer) text += `🏢 *Penyelenggara:* ${organizer}\n`;
+               
+               const participants = document.getElementById('participants').value;
+               if (participants) text += `👥 *Target:* ${participants}\n\n`;
+               
+               text += `⏰ *JADWAL KEGIATAN:*\n\n`;
+               
+               const sortedSchedules = Object.keys(schedules).sort((a, b) => {
+                   return schedules[a].startTime.localeCompare(schedules[b].startTime);
+               });
+               
+               sortedSchedules.forEach(id => {
+                   const s = schedules[id];
+                   if (s.startTime && s.title) {
+                       const duration = calculateDuration(s.startTime, s.endTime);
+                       const durationText = duration ? ` _(${duration})_` : '';
+                       text += `🕐 *${s.startTime} - ${s.endTime || '—'}*${durationText}\n`;
+                       text += `${s.title}\n`;
+                       if (s.description) text += `${s.description}\n`;
+                       text += `\n`;
+                   }
+               });
+               
+               const equipment = document.getElementById('equipment').value;
+               if (equipment) {
+                   text += `\n🎯 *Perlengkapan:*\n${equipment}\n`;
+               }
+               
+               const contact = document.getElementById('contact').value;
+               if (contact) {
+                   text += `\n📞 *Kontak:*\n${contact}\n`;
+               }
+               
+               const notes = document.getElementById('notes').value;
+               if (notes) {
+                   text += `\n📝 *Catatan:*\n${notes}\n`;
+               }
+               
+               text += `\n_Dibuat dengan Rundown Editor Universal_`;
+               
+               const encodedText = encodeURIComponent(text);
+               const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodedText}`;
+               
+               setTimeout(() => {
+                   if (window.cordova) {
+                       window.open(whatsappUrl, '_system');
+                   } else {
+                       window.open(whatsappUrl, '_blank');
+                   }
+                   showToast('✅ Membuka WhatsApp...');
+               }, 500);
+           }
+   
+           function copyToClipboard() {
+               let text = `${document.getElementById('title').value || 'Rundown Acara'}\n`;
+               text += `${document.getElementById('subtitle').value || ''}\n\n`;
+               
+               const sortedSchedules = Object.keys(schedules).sort((a, b) => {
+                   return schedules[a].startTime.localeCompare(schedules[b].startTime);
+               });
+               
+               sortedSchedules.forEach(id => {
+                   const s = schedules[id];
+                   if (s.startTime && s.title) {
+                       text += `${s.startTime} - ${s.endTime || '—'} | ${s.title}\n`;
+                       if (s.description) text += `${s.description}\n`;
+                       text += `\n`;
+                   }
+               });
+               
+               navigator.clipboard.writeText(text).then(() => {
+                   closeModal('exportModal');
+                   showToast('📋 Teks berhasil disalin');
+               }).catch(() => {
+                   alert('Gagal menyalin ke clipboard');
+               });
+           }
+           
+           function showToast(message) {
+               const toast = document.createElement('div');
+               toast.textContent = message;
+               toast.style.cssText = `
+                   position: fixed;
+                   top: 80px;
+                   left: 50%;
+                   transform: translateX(-50%);
+                   background: rgba(25,118,210,0.95);
+                   color: white;
+                   padding: 12px 24px;
+                   border-radius: 25px;
+                   font-size: 0.9rem;
+                   font-weight: 600;
+                   z-index: 10000;
+                   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                   animation: slideDown 0.3s ease;
+                   max-width: 90%;
+                   text-align: center;
+               `;
+               
+               document.body.appendChild(toast);
+               
+               setTimeout(() => {
+                   toast.style.animation = 'slideUp 0.3s ease';
+                   setTimeout(() => toast.remove(), 300);
+               }, 2500);
+           }
+           
+           function triggerHaptic() {
+               if (navigator.vibrate) {
+                   navigator.vibrate(10);
+               } else if (navigator.notification && navigator.notification.vibrate) {
+                   navigator.notification.vibrate(10);
+               }
+           }
+           
+           window.addEventListener('DOMContentLoaded', function() {
+               if (window.cordova) {
+                   document.addEventListener('deviceready', onDeviceReady, false);
+               } else {
+                   onDeviceReady();
+               }
+           });
+   
+           function onDeviceReady() {
+               if (window.StatusBar) {
+                   StatusBar.backgroundColorByHexString('#0d47a1');
+                   StatusBar.styleLightContent();
+               }
+   
+               const today = new Date().toISOString().split('T')[0];
+               const dateInput = document.getElementById('eventDate');
+               if (dateInput) dateInput.value = today;
+   
+               generatePreview();
+               
+               const wrapper = document.getElementById('swiperWrapper');
+               const dots = document.querySelectorAll('.nav-dot');
+               
+               function updateNavDots(index) {
+                   dots.forEach((dot, i) => {
+                       dot.classList.toggle('active', i === index);
+                   });
+               }
+               
+               wrapper.addEventListener('scroll', () => {
+                   const scrollLeft = wrapper.scrollLeft;
+                   const sectionWidth = window.innerWidth;
+                   const newSection = Math.round(scrollLeft / sectionWidth);
+                   
+                   if (newSection !== currentSection) {
+                       currentSection = newSection;
+                       updateNavDots(currentSection);
+                       
+                       if (currentSection === 3) {
+                           generatePreview();
+                       }
+                   }
+               });
+               
+               dots.forEach((dot, index) => {
+                   dot.addEventListener('click', () => {
+                       const sectionWidth = window.innerWidth;
+                       wrapper.scrollTo({
+                           left: sectionWidth * index,
+                           behavior: 'smooth'
+                       });
+                       currentSection = index;
+                       updateNavDots(index);
+                   });
+               });
+               
+               document.addEventListener('click', (e) => {
+                   if (e.target.classList.contains('btn') || 
+                       e.target.classList.contains('header-btn') || 
+                       e.target.classList.contains('quick-btn') ||
+                       e.target.classList.contains('event-type-card')) {
+                       triggerHaptic();
+                   }
+               });
+   
+               document.querySelectorAll('.modal').forEach(modal => {
+                   modal.addEventListener('click', (e) => {
+                       if (e.target === modal) {
+                           modal.classList.remove('active');
+                       }
+                   });
+               });
+               
+               let lastTouchEnd = 0;
+               document.addEventListener('touchend', function(event) {
+                   const now = Date.now();
+                   if (now - lastTouchEnd <= 300) {
+                       event.preventDefault();
+                   }
+                   lastTouchEnd = now;
+               }, false);
+           }
+      
+    </script>
+   
+   </body>
+   </html>
